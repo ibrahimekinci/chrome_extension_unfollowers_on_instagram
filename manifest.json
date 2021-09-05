@@ -1,0 +1,50 @@
+{
+    "name": "Unfollowwers for instagram",
+    "description": "You can see who unfollowed you.",
+    "version": "1.0",
+    "manifest_version": 3,
+    "background": {
+        "service_worker": "background.js"
+    },
+    "options_page": "./views/options_screen.html",
+    "content_scripts": [
+        {
+            "css": [
+                "./styles/add_instagram.css"
+            ],
+            "js": [
+                "./vendors/jquery/jquery-v3-6-0.min.js",
+                "./scripts/main.js",
+                "./scripts/add_instagram.js"
+            ],
+            "matches": [
+                "https://www.instagram.com/*"
+            ]
+        }
+    ],
+    "permissions": [
+        "storage",
+        "unlimitedStorage",
+        "activeTab",
+        "scripting"
+    ],
+    "host_permissions": [
+        "https://www.instagram.com/*"
+    ],
+    "action": {
+        "default_popup": "./views/popup_screen.html",
+        "default_page": "./views/full_screen.html",
+        "default_icon": {
+            "16": "./images/icon.png",
+            "32": "./images/icon.png",
+            "48": "./images/icon.png",
+            "128": "./images/icon.png"
+        }
+    },
+    "icons": {
+        "16": "./images/icon.png",
+        "32": "./images/icon.png",
+        "48": "./images/icon.png",
+        "128": "./images/icon.png"
+    }
+}

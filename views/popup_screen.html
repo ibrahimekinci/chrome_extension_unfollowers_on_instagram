@@ -1,0 +1,124 @@
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href=".././vendors/bootstrap/styles/bootstrap.min.css">
+
+  <link rel="stylesheet" href=".././styles/main.css">
+
+  <title>Unfollowwers for instagram</title>
+
+</head>
+
+<body>
+  <div class="container-fluid">
+
+    <div class="text-center">
+      <h4>Unfollowers on Instagram</h4>
+      <h5 id="titleUserName">@NoUser</h5>
+      
+      <button type="button" class="btn btn-primary mb-2" id="btnUpdateLists">update lists</button>
+      <button type="button" class="btn btn-danger mb-2" id="btnReset">Reset</button>
+    </div>
+    <div id="divWebSiteInfo" class="alert alert-danger text-center d-none">
+      Please go to https://www.instagram.com/
+      <br>
+      This is necessary for the plugin to work correctly.
+    </div>
+    <div id="divLoading" class="alert alert-info text-center d-none">Loading</div>
+    <div id="divError" class="alert alert-danger text-center d-none">Opps. An error occurred. Please try again</div>
+
+    <div id="divNoConfig" class="alert alert-danger d-none">
+      <div class="alert-heading text-center"> You must complete your settings</div>
+      <!-- Settings form -->
+      <div class="row justify-content-md-center">
+
+        <div class="col-12 text-center">
+          <h6>Welcome, You can make your settings on this form.</h6>
+        </div>
+
+        <div class="form-row align-items-center">
+          <div class="col-auto">
+            <label class="sr-only" for="txtUserName">Username</label>
+            <div class="input-group mb-2">
+              <div class="input-group-prepend">
+                <div class="input-group-text">@</div>
+              </div>
+              <input type="text" class="form-control" id="txtUserName" placeholder="Username">
+            </div>
+          </div>
+
+          <div class="col-auto">
+            <button type="button" class="btn btn-primary mb-2" id="btnUpdateOptions">Update</button>
+          </div>
+        </div>
+      </div>
+      <!-- Settings form -->
+    </div>
+    <div id="lists">
+      <div class="row m-0 p-0">
+        <div class="col-sm m-0 p-0 mt-sm-2 ">
+          <div class="card">
+            <h6 class="card-title text-center mb-1">who don't follow you</h6>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover table-sm">
+                  <thead>
+                    <th scope="col">User Name</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Actions</th>
+                  </thead>
+                  <tbody id="list1Body">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm m-0 p-0 ml-sm-4 mt-sm-2">
+          <div class="card">
+            <h6 class="card-title text-center mb-1">You don't follow</h6>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover table-sm">
+                  <thead>
+                    <th scope="col">User Name</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Actions</th>
+                  </thead>
+                  <tbody id="list2Body">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <p class="text-center mt-4">
+      copyright © İbrahim Ekinci
+    </p>
+  </div>
+
+  <!-- vuejs -->
+  <script src=".././vendors/vuejs/vuejs.min.js"></script>
+
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src=".././vendors/jquery/jquery-v3-6-0.min.js"></script>
+  <script src=".././vendors/bootstrap/scripts/popper.min.js"></script>
+  <script src=".././vendors/bootstrap/scripts/bootstrap.min.js"></script>
+
+  <!-- myjs -->
+  <script src=".././scripts/main.js"></script>
+  <script src=".././scripts/popup_screen.js"></script>
+
+</body>
+
+</html>
