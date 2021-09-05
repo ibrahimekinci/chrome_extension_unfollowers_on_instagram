@@ -4,13 +4,21 @@ You can use this plugin to find those who don't follow you. It doesn't need your
 Eklenti henüz chrome web mağazası bulunmuyor. İleride belki yükleyebilirim.  Eklentinin bilgisayarınızda çalışabilmesi için aşağıdaki adımları uygulamalısınız.
 
 -Google chrome tarayısı yüklü değil ise yüklenmelidir.
--Google chrome üzerinde "chrome://extensions/" adresine gidilmelidir. Eklentiler sayfasına menü aracılığıyla ulaşabilirsiniz.
+
+-Google chrome üzerinde "chrome://extensions/" adresine gidilmelidir. Eklentiler sayfasına menü aracılığıylada ulaşılabilmektedir.
+
 -Eklentiler sayfası en üst sağ köşede bulununan geliştirici modu açık olarak işaretlenmelidir.
--Geliştirici modu aktif ise manuel eklenti seçeneği sol üst tarafta görünecektir. Bu buton ile eklenti dosyalarının bulunduğu klasörü seçilerek yükleme tamamlanır.
+
+-Geliştirici modu aktif ise, manuel eklenti seçeneği sol üst tarafta görünecektir. Bu buton ile eklenti dosyalarının bulunduğu klasör seçilerek yükleme tamamlanır.
+
 -https://www.instagram.com/ adresine gidilir ve oturum açılır. 
--Unfollowers on instagram eklentisi açılır. Eğer iconu göremiyorsanız. Extensions kısayolu ile eklentiyi favorilere alabilir ve kolayca erişebilirsiniz.
+
+-Unfollowers on instagram eklentisi açılır. Eğer  sağ üst köşede eklenti iconunu göremiyorsanız, yapboz iconuna sahip extensions kısayolu ile eklentiyi favorilere alabilir ve kolayca erişebilirsiniz.
+
 -Eklenti açıldığında kullanıcı adı istenecektir. Buraya analiz etmek istediğiniz kullanıcı adını girebilirsiniz.
--Update Lists butonuyla listeleri güncelleyebilir ve sizi kimin takip etmediğini görebilirsiniz.
--Liste satırlarında bulunan go profile butonuyla sizi takip etmeyen profile hızlıca geçiş yapabilirsiniz.
+
+-Update Lists butonuyla listeleri güncelleyebilir ve sizi kimin takip etmediğini görebilirsiniz. Güncelleme işlemi süresi takip edilen ve takipçi sayısına bağlı olarak değişmektedir.
+
+-Liste satırlarında bulunan "go profile" butonuyla sizi takip etmeyen profile hızlıca geçiş yapabilirsiniz.
 
 Klasör içerinde resimli anlatım mevcuttur.
