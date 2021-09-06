@@ -40,6 +40,7 @@ function go_profile_click() {
     });
 }
 
+
 function btnUpdateLists_click() {
     console.log('btnUpdateLists_click');
 
@@ -64,9 +65,27 @@ function btnReset_click() {
     setUserName('');
     setFollowers([]);
     setFollowings([]);
+    setList1HideRows([]);
+    setList2HideRows([]);
     popup_screen_init();
     $("#divError").addClass("d-none");
 }
+
+function mainbtngroup_click() {
+    var $this = $(this);
+    console.log('mainbtngroup_click', $this);
+
+    var activelist = $this.data("active-list");
+
+    $("#mainbtngroup button").removeAttr('checked');
+    $this.attr('checked');
+
+    $(".js-div-list").hide();
+    $(activelist).slideDown();
+
+}
+
+$("#mainbtngroup button").click(mainbtngroup_click);
 
 function fillTxtUserName() {
     chrome.storage.local.get('instagram_username', function (data) {
@@ -109,8 +128,19 @@ function btnUpdateOptions_click() {
 function fillLists() {
     console.log('fillLists');
 
-    let list1 = app.followings.val.filter(x => app.followers.val.filter(y => y.username == x.username) == 0);
-    let list2 = app.followers.val.filter(x => app.followings.val.filter(y => y.username == x.username) == 0);
+    let list1 = app.followings.val.filter(
+        x => app.followers.val.filter(y => y.username == x.username) == 0
+    );
+
+    console.log('app.list1_hide_rows', app.list1_hide_rows);
+    if (app.list1_hide_rows && app.list1_hide_rows.length > 0) {
+        console.log("hide rows");
+        list1 = list1.filter(
+            x => app.list1_hide_rows.filter(y => y.username == x.username) == 0
+        );
+    }
+
+    let list2 = app.followers.val.filter(x => app.followings.val.filter(y => y.username == x.username) == 0 && app.list2_hide_rows.filter(z => z.username == x.username) == 0);
 
     console.log('fillLists', 'list1', list1, 'list2', list2);
 
@@ -120,19 +150,58 @@ function fillLists() {
     var list1bodyVal = "";
     var list2bodyVal = "";
 
+    // js-list1-hide-row
     if (list1)
         $.each(list1, function (index, value) {
-            list1bodyVal += '<tr><td>@' + value.username + '</td><td>' + value.full_name + '</td><td><button type="button" class="js-go-profile btn btn-sm btn-primary text-nowrap" data-username="' + value.username + '">go profile</button></td></tr>';
+            list1bodyVal += '<tr><td>@' + value.username + '</td><td>' + value.full_name + '</td><td><button type="button" class="js-go-profile btn btn-sm btn-primary text-nowrap" data-username="' + value.username + '">go profile</button><button type="button" class="js-list1-hide-row btn btn-sm btn-danger text-nowrap" data-username="' + value.username + '">hide row</button></td></tr>';
         });
 
+    //js-list1-hide-row
     if (list2)
         $.each(list2, function (index, value) {
-            list2bodyVal += '<tr><td>@' + value.username + '</td><td>' + value.full_name + '</td><td><button type="button" class="js-go-profile btn btn-sm btn-primary text-nowrap" data-username="' + value.username + '">go profile</button></td></tr>';
+            list2bodyVal += '<tr><td>@' + value.username + '</td><td>' + value.full_name + '</td><td><button type="button" class="js-go-profile btn btn-sm btn-primary text-nowrap" data-username="' + value.username + '">go profile</button><button type="button" class="js-list2-hide-row btn btn-sm btn-danger text-nowrap" data-username="' + value.username + '">hide row</button></td></tr>';
         });
 
     $list1Body.html(list1bodyVal);
     $list2Body.html(list2bodyVal);
 }
+
+function list1_hide_row_click() {
+    var $this = $(this);
+
+    var username = $this.data("username");
+    console.log('.js-list1-hide-row', '$this', $this, 'username', username);
+
+    var user = app.followings.val.filter(x => x.username == username);
+
+    console.log('.js-list1-hide-row -> user', user);
+
+    if (user && user.length > 0) {
+        app.list1_hide_rows.push(user[0]);
+
+        setList1HideRows(app.list1_hide_rows);
+
+        $this.parent().parent().remove();
+    }
+}
+
+function list2_hide_row_click() {
+    var $this = $(this);
+    var username = $this.data("username");
+    console.log('.js-list2-hide-row', '$this', $this, 'username', username);
+
+    var user = app.followers.val.filter(x => x.username == username);
+    console.log('.js-list2-hide-row -> user', user);
+
+    if (user && user.length > 0) {
+        app.list2_hide_rows.push(user[0]);
+
+        setList2HideRows(app.list2_hide_rows);
+
+        $this.parent().parent().remove();
+    }
+}
+
 
 async function popup_screen_init() {
     await main_init();
@@ -176,6 +245,9 @@ async function popup_screen_init() {
 
 
 $(document).on('click', '.js-go-profile', go_profile_click);
+$(document).on('click', '.js-list1-hide-row', list1_hide_row_click);
+$(document).on('click', '.js-list2-hide-row', list2_hide_row_click);
+
 $("#btnUpdateLists").click(btnUpdateLists_click);
 $("#btnReset").click(btnReset_click);
 $("#btnUpdateOptions").click(btnUpdateOptions_click);

@@ -15,7 +15,9 @@ var app = {
     followings: {
         val: '',
         fillStatus: false
-    }
+    },
+    list1_hide_rows: [],
+    list2_hide_rows: []
 };
 
 async function setUserName(username) {
@@ -55,6 +57,35 @@ async function setFollowings(followings) {
     //         close();
     //     }
     // });
+}
+async function setList1HideRows(rows) {
+    console.log('setList1HideRows', rows);
+    rows = rows ? JSON.stringify(rows) : [];
+    localStorage.setItem('instagram_list1_hide_rows', rows);
+}
+
+async function setList2HideRows(rows) {
+    console.log('setList2HideRows', rows);
+    rows = rows ? JSON.stringify(rows) : [];
+    localStorage.setItem('instagram_list2_hide_rows', rows);
+}
+async function fillList1HideRows() {
+
+    var data = JSON.parse(localStorage.getItem('instagram_list1_hide_rows'));
+
+    console.log('instagram_list1_hide_rows', data);
+
+    app.list1_hide_rows = data && data.length > 0 ? data : [];
+}
+
+async function fillList2HideRows() {
+
+    var data = JSON.parse(localStorage.getItem('instagram_list2_hide_rows'));
+
+    console.log('instagram_list2_hide_rows', data);
+    
+    app.list2_hide_rows = data && data.length > 0 ? data : [];
+
 }
 
 async function fillUserName() {
@@ -97,6 +128,8 @@ async function main_init() {
     fillUserName();
     fillFollowers();
     fillFollowings();
+    fillList1HideRows();
+    fillList2HideRows();
 }
 
 console.log("main js end");

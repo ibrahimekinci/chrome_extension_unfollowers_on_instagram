@@ -20,7 +20,7 @@
     <div class="text-center">
       <h4>Unfollowers on Instagram</h4>
       <h5 id="titleUserName">@NoUser</h5>
-      
+
       <button type="button" class="btn btn-primary mb-2" id="btnUpdateLists">update lists</button>
       <button type="button" class="btn btn-danger mb-2" id="btnReset">Reset</button>
     </div>
@@ -59,9 +59,20 @@
       </div>
       <!-- Settings form -->
     </div>
+
+    <div id="mainbtngroup" class="btn-group" role="group" aria-label="Main menu">
+      <button type="button" class="btn btn-sm btn-primary" data-active-list="#divList1">who don't follow you</button>
+      <!-- <button type="button" class="btn btn-sm btn-danger" data-active-list="#divList3">who don't follow you(hide
+        rows)</button> -->
+      <button type="button" class="btn btn-sm btn-primary" data-active-list="#divList2">You don't follow</button>
+      <!-- <button type="button" class="btn btn-sm btn-danger" data-active-list="#divList4">You don't follow(hide
+        rows)</button> -->
+    </div>
+
+
     <div id="lists">
       <div class="row m-0 p-0">
-        <div class="col-sm m-0 p-0 mt-sm-2 ">
+        <div id="divList1" class="js-div-list col-sm m-0 p-0 mt-sm-2 ">
           <div class="card">
             <h6 class="card-title text-center mb-1">who don't follow you</h6>
             <div class="card-body p-0">
@@ -80,7 +91,7 @@
           </div>
         </div>
 
-        <div class="col-sm m-0 p-0 ml-sm-4 mt-sm-2">
+        <div id="divList2" style="display: none;" class="js-div-list col-sm m-0 p-0 ml-sm-4 mt-sm-2">
           <div class="card">
             <h6 class="card-title text-center mb-1">You don't follow</h6>
             <div class="card-body p-0">
@@ -98,6 +109,45 @@
             </div>
           </div>
         </div>
+
+        <!-- <div id="divList3" style="display: none;" class="js-div-list col-sm m-0 p-0 ml-sm-4 mt-sm-2">
+          <div class="card">
+            <h6 class="card-title text-center mb-1">who don't follow you(hide rows)</h6>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover table-sm">
+                  <thead>
+                    <th scope="col">User Name</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Actions</th>
+                  </thead>
+                  <tbody id="list3Body">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="divList4" style="display: none;" class="js-div-list  col-sm m-0 p-0 ml-sm-4 mt-sm-2">
+          <div class="card">
+            <h6 class="card-title text-center mb-1">You don't follow(hide rows)</h6>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover table-sm">
+                  <thead>
+                    <th scope="col">User Name</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Actions</th>
+                  </thead>
+                  <tbody id="list4Body">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div> -->
+
       </div>
     </div>
 
