@@ -1,3 +1,3 @@
 chrome.runtime.onInstalled.addListener(() => {
-    console.log("Unfollowers for Instagram started");
+    console.log("Unfollowers on Instagram started");
 });

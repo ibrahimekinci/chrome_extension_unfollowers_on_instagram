@@ -2,6 +2,7 @@ console.log("main js start");
 
 var app = {
     locationIsValid: false,
+    activeTab: 'divList1',
     username: {
         val: '',
         fillStatus: false
@@ -16,12 +17,21 @@ var app = {
         val: '',
         fillStatus: false
     },
-    list1_hide_rows: [],
-    list2_hide_rows: []
+    //who don't follow you
+    list1_ignored_rows: [],
+    //You don't follow
+    list2_ignored_rows: []
 };
 
+
+
 async function setUserName(username) {
+
+    if (!username)
+        username = '';
+
     localStorage.setItem('instagram_username', username);
+
     await chrome.storage.sync.set({
         'instagram_username': username,
         function () {
@@ -30,61 +40,63 @@ async function setUserName(username) {
 
     });
 
-    setFollowers([]);
-    setFollowings([]);
+    setFollowers();
+    setFollowings();
 }
 
 async function setFollowers(followers) {
 
+    if (!followers)
+        followers = [];
+
     console.log('setFollowers', followers);
     followers = followers ? JSON.stringify(followers) : [];
     localStorage.setItem('instagram_followers', followers);
-    // await chrome.storage.local.set({
-    //     'instagram_followers': followers,
-    //     function () {
-    //         close();
-    //     }
-    // });
 }
 
 async function setFollowings(followings) {
+
+    if (!followings)
+        followings = [];
+
     console.log('setFollowings', followings);
     followings = followings ? JSON.stringify(followings) : [];
     localStorage.setItem('instagram_followings', followings);
-    // await chrome.storage.local.set({
-    //     'instagram_followings': followings,
-    //     function () {
-    //         close();
-    //     }
-    // });
 }
-async function setList1HideRows(rows) {
-    console.log('setList1HideRows', rows);
+async function setList1IgnoredRows(rows) {
+
+    if (!rows)
+        rows = [];
+    console.log('setList1IgnoredRows', rows);
     rows = rows ? JSON.stringify(rows) : [];
-    localStorage.setItem('instagram_list1_hide_rows', rows);
+    localStorage.setItem('instagram_list1_ignored_rows', rows);
 }
 
-async function setList2HideRows(rows) {
-    console.log('setList2HideRows', rows);
+async function setList2IgnoredRows(rows) {
+
+    if (!rows)
+        rows = [];
+
+    console.log('setList2IgnoredRows', rows);
     rows = rows ? JSON.stringify(rows) : [];
-    localStorage.setItem('instagram_list2_hide_rows', rows);
+    localStorage.setItem('instagram_list2_ignored_rows', rows);
 }
-async function fillList1HideRows() {
+async function fillList1IgnoredRows() {
 
-    var data = JSON.parse(localStorage.getItem('instagram_list1_hide_rows'));
+    var data = JSON.parse(localStorage.getItem('instagram_list1_ignored_rows'));
 
-    console.log('instagram_list1_hide_rows', data);
+    console.log('instagram_list1_ignored_rows', data);
 
-    app.list1_hide_rows = data && data.length > 0 ? data : [];
+    app.list1_ignored_rows = data && data.length > 0 ? data : [];
 }
 
-async function fillList2HideRows() {
+async function fillList2IgnoredRows() {
 
-    var data = JSON.parse(localStorage.getItem('instagram_list2_hide_rows'));
+    var data = JSON.parse(localStorage.getItem('instagram_list2_ignored_rows'));
 
-    console.log('instagram_list2_hide_rows', data);
-    
-    app.list2_hide_rows = data && data.length > 0 ? data : [];
+    console.log('instagram_list2_ignored_rows', data);
+
+    app.list2_ignored_rows = data && data.length > 0 ? data : [];
 
 }
 
@@ -128,8 +140,8 @@ async function main_init() {
     fillUserName();
     fillFollowers();
     fillFollowings();
-    fillList1HideRows();
-    fillList2HideRows();
+    fillList1IgnoredRows();
+    fillList2IgnoredRows();
 }
 
 console.log("main js end");

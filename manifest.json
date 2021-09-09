@@ -25,8 +25,7 @@
     "permissions": [
         "storage",
         "unlimitedStorage",
-        "activeTab",
-        "scripting"
+        "activeTab"
     ],
     "host_permissions": [
         "https://www.instagram.com/*"

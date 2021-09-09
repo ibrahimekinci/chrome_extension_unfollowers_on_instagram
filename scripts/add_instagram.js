@@ -3,7 +3,6 @@ console.log("Unfollowers for Instagram - add instagram js start");
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     console.log('chrome.runtime.onMessage.addListener', request, sender, sendResponse);
-
     if (request)
       if (request.process == 'update_instagram_info') {
         async_update_instagram_info(request.username);
@@ -32,7 +31,8 @@ function sendUpdatedLists(result,followers,followings) {
   chrome.runtime.sendMessage(message);
 }
 
-
+//thank you for this transaction 
+//from stackoverflow
 async function async_update_instagram_info(username) {
   console.log('async_update_instagram_info', username);
 
@@ -99,14 +99,7 @@ async function async_update_instagram_info(username) {
     console.log('Invalid username')
   } finally {
     console.log('hasError', hasError);
-
-    if (!hasError) {
-      // setFollowers(followers);
-      // setFollowings(followings);
-      // fillFollowers();
-      // fillFollowings();
-    }
-
+    
     sendUpdatedLists(!hasError,followers,followings);
   }
 }

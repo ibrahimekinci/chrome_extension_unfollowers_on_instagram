@@ -59,103 +59,64 @@
       </div>
       <!-- Settings form -->
     </div>
+  </div>
 
-    <div id="mainbtngroup" class="btn-group" role="group" aria-label="Main menu">
-      <button type="button" class="btn btn-sm btn-primary" data-active-list="#divList1">who don't follow you</button>
-      <!-- <button type="button" class="btn btn-sm btn-danger" data-active-list="#divList3">who don't follow you(hide
-        rows)</button> -->
-      <button type="button" class="btn btn-sm btn-primary" data-active-list="#divList2">You don't follow</button>
-      <!-- <button type="button" class="btn btn-sm btn-danger" data-active-list="#divList4">You don't follow(hide
-        rows)</button> -->
+  <nav id="mainNav" class="navbar sticky-top navbar-light bg-light mx-0">
+    <ul class="nav nav-tabs nav-fill navbar-expand" id="menu" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active js-reset-scroll-position" id="list1-tab" data-toggle="tab" href="#divList1" role="tab"
+          aria-controls="divList1" aria-selected="true">who don't follow you</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link js-reset-scroll-position" id="list2-tab" data-toggle="tab" href="#divList2" role="tab"
+          aria-controls="divList2" aria-selected="false">You don't follow</a>
+      </li>
+    </ul>
+  </nav>
+
+
+  <div class="tab-content">
+    <div id="divList1" class="tab-pane fade show active" role="tabpanel" aria-labelledby="list1-tab">
+      <div class="table-responsive">
+        <table class="table  table-sm table-hover table-borderless">
+          <thead>
+            <th scope="col">#</th>
+            <th scope="col">User Name</th>
+            <th scope="col">Name</th>
+            <th scope="col" style="min-width: 150px !important;">Actions</th>
+          </thead>
+          <tbody id="list1Body">
+          </tbody>
+        </table>
+      </div>
+
     </div>
 
-
-    <div id="lists">
-      <div class="row m-0 p-0">
-        <div id="divList1" class="js-div-list col-sm m-0 p-0 mt-sm-2 ">
-          <div class="card">
-            <h6 class="card-title text-center mb-1">who don't follow you</h6>
-            <div class="card-body p-0">
-              <div class="table-responsive">
-                <table class="table table-hover table-sm">
-                  <thead>
-                    <th scope="col">User Name</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Actions</th>
-                  </thead>
-                  <tbody id="list1Body">
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div id="divList2" style="display: none;" class="js-div-list col-sm m-0 p-0 ml-sm-4 mt-sm-2">
-          <div class="card">
-            <h6 class="card-title text-center mb-1">You don't follow</h6>
-            <div class="card-body p-0">
-              <div class="table-responsive">
-                <table class="table table-hover table-sm">
-                  <thead>
-                    <th scope="col">User Name</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Actions</th>
-                  </thead>
-                  <tbody id="list2Body">
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- <div id="divList3" style="display: none;" class="js-div-list col-sm m-0 p-0 ml-sm-4 mt-sm-2">
-          <div class="card">
-            <h6 class="card-title text-center mb-1">who don't follow you(hide rows)</h6>
-            <div class="card-body p-0">
-              <div class="table-responsive">
-                <table class="table table-hover table-sm">
-                  <thead>
-                    <th scope="col">User Name</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Actions</th>
-                  </thead>
-                  <tbody id="list3Body">
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div id="divList4" style="display: none;" class="js-div-list  col-sm m-0 p-0 ml-sm-4 mt-sm-2">
-          <div class="card">
-            <h6 class="card-title text-center mb-1">You don't follow(hide rows)</h6>
-            <div class="card-body p-0">
-              <div class="table-responsive">
-                <table class="table table-hover table-sm">
-                  <thead>
-                    <th scope="col">User Name</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Actions</th>
-                  </thead>
-                  <tbody id="list4Body">
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div> -->
-
+    <div id="divList2" class="tab-pane fade" role="tabpanel" aria-labelledby="list2-tab">
+      <div class="table-responsive">
+        <table class="table  table-sm table-hover table-borderless">
+          <thead>
+            <th scope="col">#</th>
+            <th scope="col">User Name</th>
+            <th scope="col">Name</th>
+            <th scope="col" style="min-width: 150px !important;">Actions</th>
+          </thead>
+          <tbody id="list2Body">
+          </tbody>
+        </table>
       </div>
     </div>
 
-
-    <p class="text-center mt-4">
-      copyright © İbrahim Ekinci
-    </p>
   </div>
+
+  <nav class="navbar navbar-text text-center fixed-bottom navbar-light bg-light ">
+    copyright © <a class="navbar-brand" href="ibrahimekinci.dev">İbrahim Ekinci</a>
+
+    <button type="button" class="btn btn-warning btn-sm js-reset-scroll-position" id="btnTop"
+      title="Go to top">Top</button>
+  </nav>
+
+
 
   <!-- vuejs -->
   <script src=".././vendors/vuejs/vuejs.min.js"></script>
