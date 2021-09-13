@@ -1,7 +1,7 @@
 {
     "name": "unfollowers on instagram",
     "description": "You can see who unfollowed you.",
-    "version": "1.0",
+    "version": "1.0.20210912",
     "manifest_version": 3,
     "background": {
         "service_worker": "background.js"
