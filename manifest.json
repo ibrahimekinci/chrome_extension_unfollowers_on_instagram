@@ -6,16 +6,16 @@
     "background": {
         "service_worker": "background.js"
     },
-    "options_page": "./views/options_screen.html",
+    "options_page": "./src/views/options_screen.html",
     "content_scripts": [
         {
             "css": [
-                "./styles/add_instagram.css"
+                "./src/assets/styles/add_instagram.css"
             ],
             "js": [
-                "./vendors/jquery/jquery-v3-6-0.min.js",
-                "./scripts/main.js",
-                "./scripts/add_instagram.js"
+                "./src/vendors/jquery/jquery-v3-6-0.min.js",
+                "./src/assets/scripts/main.js",
+                "./src/assets/scripts/add_instagram.js"
             ],
             "matches": [
                 "https://www.instagram.com/*"
@@ -31,19 +31,18 @@
         "https://www.instagram.com/*"
     ],
     "action": {
-        "default_popup": "./views/popup_screen.html",
-        "default_page": "./views/full_screen.html",
+        "default_popup": "./src/views/popup_screen.html",
         "default_icon": {
-            "16": "./images/icon.png",
-            "32": "./images/icon.png",
-            "48": "./images/icon.png",
-            "128": "./images/icon.png"
+            "16": "./src/assets/images/icon.png",
+            "32": "./src/assets/images/icon.png",
+            "48": "./src/assets/images/icon.png",
+            "128": "./src/assets/images/icon.png"
         }
     },
     "icons": {
-        "16": "./images/icon.png",
-        "32": "./images/icon.png",
-        "48": "./images/icon.png",
-        "128": "./images/icon.png"
+        "16": "./src/assets/images/icon.png",
+        "32": "./src/assets/images/icon.png",
+        "48": "./src/assets/images/icon.png",
+        "128": "./src/assets/images/icon.png"
     }
 }
