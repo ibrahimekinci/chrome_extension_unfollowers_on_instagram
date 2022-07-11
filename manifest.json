@@ -1,7 +1,7 @@
 {
     "name": "unfollowers on instagram",
     "description": "You can see who unfollowed you.",
-    "version": "1.0.20210912",
+    "version": "1.2022.07.11",
     "manifest_version": 3,
     "background": {
         "service_worker": "background.js"
@@ -10,12 +10,12 @@
     "content_scripts": [
         {
             "css": [
-                "./src/assets/styles/add_instagram.css"
+                "./src/assets/styles/instagram _page_additional.css"
             ],
             "js": [
                 "./src/vendors/jquery/jquery-v3-6-0.min.js",
                 "./src/assets/scripts/main.js",
-                "./src/assets/scripts/add_instagram.js"
+                "./src/assets/scripts/instagram _page_additional.js"
             ],
             "matches": [
                 "https://www.instagram.com/*"

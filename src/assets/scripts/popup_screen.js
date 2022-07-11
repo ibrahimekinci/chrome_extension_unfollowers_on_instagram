@@ -1,26 +1,216 @@
 console.log("popup screen js start");
 
 chrome.runtime.onMessage.addListener(
-    function (request, sender, sendResponse) {
+    async function (request, sender, sendResponse) {
         console.log('chrome.runtime.onMessage.addListener', request, sender, sendResponse);
+        showLoader();
         if (request.process = "updated_lists") {
             console.log('chrome.runtime.onMessage.addListener -> updated_lists');
-            setFollowers(request.followers);
-            setFollowings(request.followings);
-            popup_screen_init();
 
-            $("#divLoading").addClass("d-none");
+            if (!request.user_id || request.user_id <= 0)
+                return;
+
+            var current_user = getUser();
+            if (current_user.id != request.user_id) {
+                clearStorage();
+                var user = {
+                    id: request.user_id
+                };
+                setUser(user);
+                current_user = user;
+            }
+
+            var saved_friends = getFriends();
+            var friends = [];
+
+            var receivedFollowers = request.followers;
+            var receivedFollowings = request.followings;
+
+            console.log('current_user', current_user, 'saved_friends', saved_friends, 'receivedFollowers', receivedFollowers, 'receivedFollowings', receivedFollowings);
+
+            //user model
+            //follower -> ignored
+            //follower -> priority
+            //follower -> new
+            //follower -> status
+
+            //following -> ignored
+            //following -> priority
+            //following -> new
+            //following -> status
+
+            //id : '',
+            //username: '',
+            //full_name: '',
+            //profile_pic_url: '',
+            //is_private: true,
+
+            function initFriend(friend) {
+                var friendFromSavedFriends = null;
+
+                if (saved_friends && saved_friends.length > 0)
+                    friendFromSavedFriends = saved_friends.find(function (item) {
+                        return item.id == friend.id;
+                    });
+
+                console.log('friendFromSavedFriends', friendFromSavedFriends);
+                if (!friendFromSavedFriends) {
+                    friend.follower.ignored = false;
+                    friend.follower.priority = false;
+                    friend.follower.new = true;
+
+                    friend.following.ignored = false;
+                    friend.following.priority = false;
+                    friend.following.new = true;
+                }
+                else {
+                    friend.follower.ignored = friendFromSavedFriends.follower.ignored;
+                    friend.follower.priority = friendFromSavedFriends.follower.priority;
+                    friend.follower.new = !friendFromSavedFriends.follower.status && friend.follower.status;
+
+                    friend.following.ignored = friendFromSavedFriends.following.ignored;
+                    friend.following.priority = friendFromSavedFriends.following.priority;
+                    friend.following.new = !friendFromSavedFriends.following.status && friend.following.status;
+                }
+
+                return friend;
+            }
+
+            if (Array.isArray(receivedFollowers))
+                receivedFollowers?.forEach(function (friend) {
+                    friend.follower = {};
+                    friend.following = {};
+
+                    friend.follower.status = true;
+
+                    friend.following.status = receivedFollowings.findIndex(function (item) {
+                        return item.id == friend.id;
+                    }) > -1;
+
+                    friend = initFriend(friend);
+
+                    friends.push(friend);
+                });
+
+            if (Array.isArray(receivedFollowings))
+                receivedFollowings?.forEach(function (friend) {
+                    friend.follower = {};
+                    friend.following = {};
+
+                    friend.follower.status = friends.findIndex(function (item) {
+                        return item.id == friend.id;
+                    }) > -1;
+
+                    friend.following.status = true;
+
+                    if (friend.follower.status)
+                        return;
+
+                    friend = initFriend(friend);
+
+                    friends.push(friend);
+                });
+
+            console.log('friends', friends);
+            setFriends(friends);
+
+            await popup_screen_init();
 
             if (request.result) {
                 $("#divError").addClass("d-none");
             } else {
                 $("#divError").removeClass("d-none");
             }
-
         }
+        hideLoader();
     });
 
 
+function whoDoNotFollowYouFriends() {
+    console.log('whoDoNotFollowYouFriends start');
+    var response = [];
+    var friends = getFriends();
+
+    if (friends && Array.isArray(friends) && friends.length > 0) {
+        friends = friends?.filter(
+            x => !x.follower.status && x.following.status
+        );
+    }
+
+    if (!friends || !Array.isArray(friends) || friends.length == 0) {
+        return response;
+    }
+
+    //new
+    var tmpNew = friends.filter(
+        x => x.follower.new && !x.follower.ignored
+    );
+
+    if (tmpNew && Array.isArray(tmpNew) && tmpNew.length > 0)
+        tmpNew.forEach(item => response.push(item));
+
+    //normal
+    var tmpNormal = friends.filter(
+        x => !x.follower.new && !x.follower.ignored
+    );
+
+    if (tmpNormal && Array.isArray(tmpNormal) && tmpNormal.length > 0)
+        tmpNormal.forEach(item => response.push(item));
+
+    //ignore
+    var tmpIgnore = friends.filter(
+        x => x.follower.ignored
+    );
+
+    if (tmpIgnore && Array.isArray(tmpIgnore) && tmpIgnore.length > 0)
+        tmpIgnore.forEach(item => response.push(item));
+
+    console.log('whoDoNotFollowYouFriends end', tmpNew, tmpNormal, tmpIgnore);
+    return response;
+}
+
+function YouDoNotFollowFriends() {
+    console.log('YouDoNotFollowFriends start');
+    var response = [];
+    var friends = getFriends();
+
+    if (friends && Array.isArray(friends) && friends.length > 0) {
+        friends = friends?.filter(
+            x => x.follower.status && !x.following.status
+        );
+    }
+
+    if (!friends || !Array.isArray(friends) || friends.length == 0) {
+        return response;
+    }
+
+    //new
+    var tmpNew = friends.filter(
+        x => x.following.new && !x.following.ignored
+    );
+
+    if (tmpNew && Array.isArray(tmpNew) && tmpNew.length > 0)
+        tmpNew.forEach(item => response.push(item));
+
+    //normal
+    var tmpNormal = friends.filter(
+        x => !x.following.new && !x.following.ignored
+    );
+
+    if (tmpNormal && Array.isArray(tmpNormal) && tmpNormal.length > 0)
+        tmpNormal.forEach(item => response.push(item));
+
+    //ignore
+    var tmpIgnore = friends.filter(
+        x => x.following.ignored
+    );
+
+    if (tmpIgnore && Array.isArray(tmpIgnore) && tmpIgnore.length > 0)
+        tmpIgnore.forEach(item => response.push(item));
+
+    console.log('YouDoNotFollowFriends end', tmpNew, tmpNormal, tmpIgnore);
+    return response;
+}
 
 function go_profile_click() {
     var $this = $(this);
@@ -45,10 +235,10 @@ function go_profile_click() {
 
 function btnUpdateLists_click() {
     console.log('btnUpdateLists_click');
+    showLoader();
 
     var message = {
-        process: 'update_instagram_info',
-        username: app.username.val
+        process: 'update_instagram_info'
     };
 
     chrome.tabs.query({
@@ -58,91 +248,37 @@ function btnUpdateLists_click() {
         var activeTab = tabs[0];
         chrome.tabs.sendMessage(activeTab.id, message);
     });
-
-
-    $("#divLoading").removeClass("d-none");
 }
 
-function btnReset_click() {
-    setUserName();
-    setFollowers();
-    setFollowings();
-    setList1IgnoredRows();
-    setList2IgnoredRows();
-    popup_screen_init();
+async function btnReset_click() {
+    console.log('btnReset_click');
+
+    showLoader();
+    clearStorage();
+    await popup_screen_init();
 
     $("#divError").addClass("d-none");
-    
+
     var $list1Body = $("#list1Body");
     var $list2Body = $("#list2Body");
 
     $list1Body.html('');
     $list2Body.html('');
-}
-
-
-function fillTxtUserName() {
-    chrome.storage.local.get('instagram_username', function (data) {
-        var $username = $("#txtUserName");
-        $username.val(data.instagram_username);
-    });
-}
-
-function validateForm() {
-    var $username = $("#txtUserName");
-    console.log("Options page username", $username);
-
-    var retVal = false;
-
-    if (!$username || !$username.val() || $username.val().length < 1) {
-        $username.addClass("is-invalid");
-        $username.removeClass("is-valid");
-        retVal = false;
-
-    } else {
-        $username.removeClass("is-invalid");
-        $username.addClass("is-valid");
-        retVal = true;
-    }
-
-    return retVal;
-}
-
-function btnUpdateOptions_click() {
-    if (validateForm()) {
-        var username = $("#txtUserName").val();
-        setUserName(username);
-        fillTxtUserName();
-        main_init();
-        popup_screen_init();
-        $("#divError").addClass("d-none");
-    }
+    hideLoader();
 }
 
 function fillLists() {
     console.log('fillLists');
 
-    let list1 = app.followings.val.filter(
-        x => app.followers.val.filter(y => y.username == x.username) == 0
-    );
-
-    console.log('app.list1_ignored_rows', app.list1_ignored_rows);
-    if (app.list1_ignored_rows && app.list1_ignored_rows.length > 0) {
-        console.log("hide rows");
-        list1 = list1.filter(
-            x => app.list1_ignored_rows.filter(y => y.username == x.username) == 0
-        );
-    }
-
-    let list2 = app.followers.val.filter(x => app.followings.val.filter(y => y.username == x.username) == 0 && app.list2_ignored_rows.filter(z => z.username == x.username) == 0);
+    let list1 = whoDoNotFollowYouFriends();
+    let list2 = YouDoNotFollowFriends();
 
     console.log('fillLists', 'list1', list1, 'list2', list2);
 
     var list1bodyVal = "";
     var list2bodyVal = "";
 
-    // js-list1-ignore_row
-    if (list1)
+    if (list1 && list1.length > 0)
         $.each(list1, function (index, value) {
             list1bodyVal += "<tr>";
             list1bodyVal += '<th scope="row">';
@@ -158,15 +294,15 @@ function fillLists() {
             list1bodyVal += "</td>";
 
             list1bodyVal += "<td>";
-            list1bodyVal += '<button type="button" class="js-go-profile btn btn-sm btn-info text-nowrap" data-username="' + value.username + '">go profile</button>';
-            list1bodyVal += '<button type="button" class="js-list1-ignore_row btn btn-sm btn-danger text-nowrap" data-username="' + value.username + '">ignore</button>';
+            //list1bodyVal += `<img class="js-go-profile text-nowrap" alt="go profile" data-username="${value.username}" src="${value.profile_pic_url}" />`;
+            list1bodyVal += `<button type="button" class="js-go-profile btn btn-sm btn-info text-nowrap" data-username="${value.username}">go profile</button>`;
+            list1bodyVal += `<button type="button" class="js-list1-ignore_row btn btn-sm btn-danger text-nowrap" data-id="${value.id}">ignore</button>`;
             list1bodyVal += "</td>";
 
             list1bodyVal += "</tr>";
         });
 
-    //js-list1-ignore_row
-    if (list2)
+    if (list2 && list2.length > 0)
         $.each(list2, function (index, value) {
             list2bodyVal += "<tr>";
 
@@ -183,8 +319,8 @@ function fillLists() {
             list2bodyVal += "</td>";
 
             list2bodyVal += "<td>";
-            list2bodyVal += '<button type="button" class="js-go-profile btn btn-sm btn-info text-nowrap" data-username="' + value.username + '">go profile</button>';
-            list2bodyVal += '<button type="button" class="js-list2-ignore_row btn btn-sm btn-danger text-nowrap" data-username="' + value.username + '">ignore</button>';
+            list2bodyVal += `<button type="button" class="js-go-profile btn btn-sm btn-info text-nowrap" data-username="${value.username}">go profile</button>`;
+            list2bodyVal += `<button type="button" class="js-list2-ignore_row btn btn-sm btn-danger text-nowrap" data-id="${value.id}">ignore</button>`;
             list2bodyVal += "</td>";
 
             list2bodyVal += "</tr>";
@@ -198,44 +334,59 @@ function fillLists() {
 }
 
 function list1_hide_row_click() {
+    console.log('list1_hide_row_click');
+
+    showLoader();
     var $this = $(this);
+    var user_id = $this.data("id");
+    var friends = getFriends();
 
-    var username = $this.data("username");
-    console.log('.js-list1-ignore_row', '$this', $this, 'username', username);
+    console.log('$this', $this, 'user_id', user_id, 'friends', friends);
 
-    var user = app.followings.val.filter(x => x.username == username);
+    var friend_index = -1;
+    if (friends && friends.length > 0)
+        friend_index = friends.findIndex(function (item) { return item.id == user_id; });
+    console.log('friend_index', friend_index);
 
-    console.log('.js-list1-ignore_row -> user', user);
-
-    if (user && user.length > 0) {
-        app.list1_ignored_rows.push(user[0]);
-
-        setList1IgnoredRows(app.list1_ignored_rows);
-
-        $this.parent().parent().remove();
+    if (friend_index > -1) {
+        console.log('friend', friends[friend_index]);
+        friends[friend_index].follower.ignored = true;
+        setFriends(friends);
     }
+
+    $this.parent().parent().remove();
+    hideLoader();
 }
 
 function list2_hide_row_click() {
+    console.log('list2_hide_row_click');
+
+    showLoader();
     var $this = $(this);
-    var username = $this.data("username");
-    console.log('.js-list2-ignore_row', '$this', $this, 'username', username);
+    var user_id = $this.data("id");
+    var friends = getFriends();
 
-    var user = app.followers.val.filter(x => x.username == username);
-    console.log('.js-list2-ignore_row -> user', user);
+    console.log('$this', $this, 'user_id', user_id, 'friends', friends);
 
-    if (user && user.length > 0) {
-        app.list2_ignored_rows.push(user[0]);
+    var friend_index = -1;
+    if (friends && friends.length > 0)
+        friend_index = friends.findIndex(function (item) { return item.id == user_id; });
 
-        setList2IgnoredRows(app.list2_ignored_rows);
+    console.log('friend_index', friend_index);
 
-        $this.parent().parent().remove();
+    if (friend_index > -1) {
+        console.log('friend', friends[friend_index]);
+        friends[friend_index].following.ignored = true;
+        setFriends(friends);
     }
+
+    $this.parent().parent().remove();
+    hideLoader();
 }
 
 //activeTab
 function getActiveTab() {
-    var val = localStorage.getItem("popup-page-active-tab");
+    var val = localStorage.getItem(appStorageKeyNames.popup_page.active_tab);
 
     if (!val)
         val = 'list1-tab';
@@ -245,12 +396,14 @@ function getActiveTab() {
 
 function setActiveTab() {
     console.log('setActiveTab', $(this).attr("id"));
-    localStorage.setItem("popup-page-active-tab", $(this).attr("id"));
+
+    localStorage.setItem(appStorageKeyNames.popup_page.active_tab, $(this).attr("id"));
 }
+
 //ActiveTab
 //scroll
 async function getScrollPositionTop() {
-    return localStorage.getItem("popup-page-scroll-position-top")
+    return localStorage.getItem(appStorageKeyNames.popup_page.scroll_position_top)
 }
 
 async function setScrollPositionTop(top) {
@@ -258,8 +411,7 @@ async function setScrollPositionTop(top) {
     if (!top) {
         top = $(document).scrollTop();
     }
-
-    localStorage.setItem("popup-page-scroll-position-top", top);
+    localStorage.setItem(appStorageKeyNames.popup_page.scroll_position_top, top);
 }
 
 
@@ -311,6 +463,8 @@ async function rememberScrollPosition() {
 //scroll
 
 async function checkSiteInfo() {
+    console.log('checkSiteInfo');
+
     chrome.tabs.query({
         active: true,
     }, tabs => {
@@ -318,6 +472,7 @@ async function checkSiteInfo() {
 
         if (tabs[0].url.includes("instagram.com")) {
             $("#divWebSiteInfo").addClass("d-none");
+            $("#btnUpdateLists").removeClass("d-none");
         } else {
             $("#divWebSiteInfo").removeClass("d-none");
             $("#btnUpdateLists").addClass("d-none");
@@ -327,26 +482,10 @@ async function checkSiteInfo() {
 }
 
 async function popup_screen_init() {
-    await main_init();
-
-    // setTimeout(function () {
     console.log('popup_screen_init');
-
-    $("#divLoading").addClass("d-none");
-
-    if (app.username.val.length < 1) {
-        $("#btnUpdateLists").addClass("d-none");
-        $("#btnReset").addClass("d-none");
-
-        $("#divNoConfig").removeClass("d-none");
-
-        $("#titleUserName").html('@NoUser');
-    } else {
-        $("#btnUpdateLists").removeClass("d-none");
-        $("#btnReset").removeClass("d-none");
-
-        $("#divNoConfig").addClass("d-none");
-        $("#titleUserName").html('@' + app.username.val);
+    await main_init();
+    var user = getUser();
+    if (user.id > 0) {
         fillLists();
     }
 
@@ -355,10 +494,7 @@ async function popup_screen_init() {
     await checkSiteInfo();
     await rememberScrollPosition();
     await goToTopAction();
-
-
-    console.log('app', app);
-    // }, 1000);
+    fillLists();
 }
 
 
@@ -370,11 +506,11 @@ $(document).on('click', '.nav-link', setActiveTab);
 
 $("#btnUpdateLists").click(btnUpdateLists_click);
 $("#btnReset").click(btnReset_click);
-$("#btnUpdateOptions").click(btnUpdateOptions_click);
 
 $(document).ready(function () {
-    console.log('popup_screen_init ready app', app);
-    popup_screen_init();
+    popup_screen_init().then(function () {
+        hideLoader();
+    });
 });
 
 console.log("popup screen js end");
