@@ -1,11 +1,11 @@
-console.log("popup screen js start");
+if (debugMode) console.log("popup screen js start");
 
 chrome.runtime.onMessage.addListener(
     async function (request, sender, sendResponse) {
-        console.log('chrome.runtime.onMessage.addListener', request, sender, sendResponse);
+        if (debugMode) console.log('chrome.runtime.onMessage.addListener', request, sender, sendResponse);
         showLoader();
         if (request.process = "updated_lists") {
-            console.log('chrome.runtime.onMessage.addListener -> updated_lists');
+            if (debugMode) console.log('chrome.runtime.onMessage.addListener -> updated_lists');
 
             if (!request.user_id || request.user_id <= 0)
                 return;
@@ -26,7 +26,7 @@ chrome.runtime.onMessage.addListener(
             var receivedFollowers = request.followers;
             var receivedFollowings = request.followings;
 
-            console.log('current_user', current_user, 'saved_friends', saved_friends, 'receivedFollowers', receivedFollowers, 'receivedFollowings', receivedFollowings);
+            if (debugMode) console.log('current_user', current_user, 'saved_friends', saved_friends, 'receivedFollowers', receivedFollowers, 'receivedFollowings', receivedFollowings);
 
             //user model
             //follower -> ignored
@@ -53,7 +53,7 @@ chrome.runtime.onMessage.addListener(
                         return item.id == friend.id;
                     });
 
-                console.log('friendFromSavedFriends', friendFromSavedFriends);
+                if (debugMode) console.log('friendFromSavedFriends', friendFromSavedFriends);
                 if (!friendFromSavedFriends) {
                     friend.follower.ignored = false;
                     friend.follower.priority = false;
@@ -111,7 +111,7 @@ chrome.runtime.onMessage.addListener(
                     friends.push(friend);
                 });
 
-            console.log('friends', friends);
+            if (debugMode) console.log('friends', friends);
             setFriends(friends);
 
             await popup_screen_init();
@@ -127,7 +127,7 @@ chrome.runtime.onMessage.addListener(
 
 
 function whoDoNotFollowYouFriends() {
-    console.log('whoDoNotFollowYouFriends start');
+    if (debugMode) console.log('whoDoNotFollowYouFriends start');
     var response = [];
     var friends = getFriends();
 
@@ -165,12 +165,12 @@ function whoDoNotFollowYouFriends() {
     if (tmpIgnore && Array.isArray(tmpIgnore) && tmpIgnore.length > 0)
         tmpIgnore.forEach(item => response.push(item));
 
-    console.log('whoDoNotFollowYouFriends end', tmpNew, tmpNormal, tmpIgnore);
+    if (debugMode) console.log('whoDoNotFollowYouFriends end', tmpNew, tmpNormal, tmpIgnore);
     return response;
 }
 
 function YouDoNotFollowFriends() {
-    console.log('YouDoNotFollowFriends start');
+    if (debugMode) console.log('YouDoNotFollowFriends start');
     var response = [];
     var friends = getFriends();
 
@@ -208,13 +208,13 @@ function YouDoNotFollowFriends() {
     if (tmpIgnore && Array.isArray(tmpIgnore) && tmpIgnore.length > 0)
         tmpIgnore.forEach(item => response.push(item));
 
-    console.log('YouDoNotFollowFriends end', tmpNew, tmpNormal, tmpIgnore);
+    if (debugMode) console.log('YouDoNotFollowFriends end', tmpNew, tmpNormal, tmpIgnore);
     return response;
 }
 
 function go_profile_click() {
     var $this = $(this);
-    console.log('go_profile', $this);
+    if (debugMode) console.log('go_profile', $this);
 
     var username = $this.data("username");
 
@@ -234,7 +234,7 @@ function go_profile_click() {
 
 
 function btnUpdateLists_click() {
-    console.log('btnUpdateLists_click');
+    if (debugMode) console.log('btnUpdateLists_click');
     showLoader();
 
     var message = {
@@ -251,7 +251,7 @@ function btnUpdateLists_click() {
 }
 
 async function btnReset_click() {
-    console.log('btnReset_click');
+    if (debugMode) console.log('btnReset_click');
 
     showLoader();
     clearStorage();
@@ -268,12 +268,12 @@ async function btnReset_click() {
 }
 
 function fillLists() {
-    console.log('fillLists');
+    if (debugMode) console.log('fillLists');
 
     let list1 = whoDoNotFollowYouFriends();
     let list2 = YouDoNotFollowFriends();
 
-    console.log('fillLists', 'list1', list1, 'list2', list2);
+    if (debugMode) console.log('fillLists', 'list1', list1, 'list2', list2);
 
     var list1bodyVal = "";
     var list2bodyVal = "";
@@ -334,22 +334,22 @@ function fillLists() {
 }
 
 function list1_hide_row_click() {
-    console.log('list1_hide_row_click');
+    if (debugMode) console.log('list1_hide_row_click');
 
     showLoader();
     var $this = $(this);
     var user_id = $this.data("id");
     var friends = getFriends();
 
-    console.log('$this', $this, 'user_id', user_id, 'friends', friends);
+    if (debugMode) console.log('$this', $this, 'user_id', user_id, 'friends', friends);
 
     var friend_index = -1;
     if (friends && friends.length > 0)
         friend_index = friends.findIndex(function (item) { return item.id == user_id; });
-    console.log('friend_index', friend_index);
+    if (debugMode) console.log('friend_index', friend_index);
 
     if (friend_index > -1) {
-        console.log('friend', friends[friend_index]);
+        if (debugMode) console.log('friend', friends[friend_index]);
         friends[friend_index].follower.ignored = true;
         setFriends(friends);
     }
@@ -359,23 +359,23 @@ function list1_hide_row_click() {
 }
 
 function list2_hide_row_click() {
-    console.log('list2_hide_row_click');
+    if (debugMode) console.log('list2_hide_row_click');
 
     showLoader();
     var $this = $(this);
     var user_id = $this.data("id");
     var friends = getFriends();
 
-    console.log('$this', $this, 'user_id', user_id, 'friends', friends);
+    if (debugMode) console.log('$this', $this, 'user_id', user_id, 'friends', friends);
 
     var friend_index = -1;
     if (friends && friends.length > 0)
         friend_index = friends.findIndex(function (item) { return item.id == user_id; });
 
-    console.log('friend_index', friend_index);
+    if (debugMode) console.log('friend_index', friend_index);
 
     if (friend_index > -1) {
-        console.log('friend', friends[friend_index]);
+        if (debugMode) console.log('friend', friends[friend_index]);
         friends[friend_index].following.ignored = true;
         setFriends(friends);
     }
@@ -395,7 +395,7 @@ function getActiveTab() {
 }
 
 function setActiveTab() {
-    console.log('setActiveTab', $(this).attr("id"));
+    if (debugMode) console.log('setActiveTab', $(this).attr("id"));
 
     localStorage.setItem(appStorageKeyNames.popup_page.active_tab, $(this).attr("id"));
 }
@@ -444,7 +444,7 @@ async function goToTopAction() {
 async function rememberScrollPosition() {
     // If cookie is set, scroll to the position saved in the cookie.
     let scrollTop = await getScrollPositionTop();
-    console.log('scrollTop', scrollTop);
+    if (debugMode) console.log('scrollTop', scrollTop);
     if (scrollTop !== null) {
         scrollTop = parseInt(scrollTop, 10);
 
@@ -463,12 +463,12 @@ async function rememberScrollPosition() {
 //scroll
 
 async function checkSiteInfo() {
-    console.log('checkSiteInfo');
+    if (debugMode) console.log('checkSiteInfo');
 
     chrome.tabs.query({
         active: true,
     }, tabs => {
-        console.log("active tab url", tabs[0].url);
+        if (debugMode) console.log("active tab url", tabs[0].url);
 
         if (tabs[0].url.includes("instagram.com")) {
             $("#divWebSiteInfo").addClass("d-none");
@@ -482,7 +482,7 @@ async function checkSiteInfo() {
 }
 
 async function popup_screen_init() {
-    console.log('popup_screen_init');
+    if (debugMode) console.log('popup_screen_init');
     await main_init();
     var user = getUser();
     if (user.id > 0) {
@@ -513,4 +513,4 @@ $(document).ready(function () {
     });
 });
 
-console.log("popup screen js end");
+if (debugMode) console.log("popup screen js end");

@@ -1,4 +1,5 @@
 console.log("Unfollowers for Instagram");
+var debugMode = false;
 var appStorageKeyNames =
 {
     popup_page: {
@@ -11,11 +12,11 @@ var appStorageKeyNames =
 
 function clearStorage() {
     localStorage.clear();
-    console.log("clearStorage ended");
+    if (debugMode) console.log("clearStorage ended");
 }
 
 function setUser(value) {
-    console.log('setUser', value);
+    if (debugMode) console.log('setUser', value);
     json = '{}';
     try {
         if (!value) {
@@ -83,7 +84,7 @@ function getFriends() {
 }
 
 function setFriends(value) {
-    console.log('setFriends', value);
+    if (debugMode) console.log('setFriends', value);
     json = '{}';
     try {
         if (!value)
@@ -108,5 +109,5 @@ function hideLoader() {
 }
 
 async function main_init() {
-   
+
 }

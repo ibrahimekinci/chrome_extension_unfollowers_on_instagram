@@ -1,8 +1,8 @@
 console.log("Unfollowers for Instagram - scripts added to page ");
-
+var debugMode = false;
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
-    console.log('chrome.runtime.onMessage.addListener', request, sender, sendResponse);
+    if (debugMode) console.log('chrome.runtime.onMessage.addListener', request, sender, sendResponse);
     if (request)
       if (request.process == 'update_instagram_info') {
         async_update_instagram_info();
@@ -13,7 +13,7 @@ chrome.runtime.onMessage.addListener(
 );
 
 function go_profile(username) {
-  console.log('go_profile', username);
+  if (debugMode) console.log('go_profile', username);
   if (username)
     location.href = "https://www.instagram.com/" + username + "/";
 }
@@ -31,7 +31,8 @@ function sendUpdatedLists(result, user_id, followers, followings) {
 }
 
 async function async_get_followers(query_hash, userId) {
-  console.log('async_get_followers started')
+
+  if (debugMode) console.log('async_get_followers started')
 
   var followers = [];
   var hasError = false;
@@ -66,13 +67,13 @@ async function async_get_followers(query_hash, userId) {
     hasError = true;
     console.log('error', err);
   } finally {
-    console.log('async_get_followers completed', 'hasError', hasError);
+    if (debugMode) console.log('async_get_followers completed', 'hasError', hasError);
     return hasError ? null : followers;
   }
 }
 
 async function async_get_followings(query_hash, userId) {
-  console.log('async_get_followings started')
+  if (debugMode) console.log('async_get_followings started')
 
   var followings = [];
   var hasError = false;
@@ -108,7 +109,7 @@ async function async_get_followings(query_hash, userId) {
     hasError = true;
     console.log('error', err);
   } finally {
-    console.log('async_get_followings completed', 'hasError', hasError);
+    if (debugMode) console.log('async_get_followings completed', 'hasError', hasError);
     return hasError ? null : followings;
   }
 }
@@ -132,8 +133,7 @@ function getCookie(cname) {
 //thank you for this transaction 
 //from stackoverflow
 async function async_update_instagram_info() {
-
-  console.log('async_update_instagram_info started');
+  if (debugMode) console.log('async_update_instagram_info started');
   let followers = null,
     followings = null,
     hasError = false;
@@ -141,15 +141,15 @@ async function async_update_instagram_info() {
   let userId = getCookie('ds_user_id');
 
   if (userId && userId > 0) {
-    console.log('1');
+    if (debugMode) console.log('1');
     followers = await async_get_followers('37479f2b8209594dde7facb0d904896a', userId);
-    console.log('2');
+    if (debugMode) console.log('2');
     followings = await async_get_followings('d04b0a864b4b54837c0d870b0e77e076', userId);
-    console.log('3');
+    if (debugMode) console.log('3');
   }
 
   hasError = followers == null || followings == null;
   sendUpdatedLists(!hasError, userId, followers, followings);
 
-  console.log('async_update_instagram_info ended', 'hasError', hasError, 'followers', followers, 'followings', followings);
+  if (debugMode) console.log('async_update_instagram_info ended', 'hasError', hasError, 'followers', followers, 'followings', followings);
 }
