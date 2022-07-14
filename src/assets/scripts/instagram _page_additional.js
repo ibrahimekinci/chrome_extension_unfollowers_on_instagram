@@ -1,22 +1,5 @@
 console.log("Unfollowers for Instagram - scripts added to page ");
 var debugMode = false;
-chrome.runtime.onMessage.addListener(
-  function (request, sender, sendResponse) {
-    if (debugMode) console.log('chrome.runtime.onMessage.addListener', request, sender, sendResponse);
-    if (request)
-      if (request.process == 'update_instagram_info') {
-        async_update_instagram_info();
-      } else if (request.process == 'go_profile') {
-        go_profile(request.username);
-      }
-  }
-);
-
-function go_profile(username) {
-  if (debugMode) console.log('go_profile', username);
-  if (username)
-    location.href = "https://www.instagram.com/" + username + "/";
-}
 
 function sendUpdatedLists(result, user_id, followers, followings) {
   var message = {
@@ -28,6 +11,32 @@ function sendUpdatedLists(result, user_id, followers, followings) {
   };
 
   chrome.runtime.sendMessage(message);
+}
+
+function sendGenericMessage(process, result, user_id) {
+  var message = {
+    process: process,
+    result: result,
+    user_id: user_id
+  };
+
+  chrome.runtime.sendMessage(message);
+}
+
+function getCookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for (var i = 0; i < ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
 }
 
 async function async_get_followers(query_hash, userId) {
@@ -114,21 +123,6 @@ async function async_get_followings(query_hash, userId) {
   }
 }
 
-function getCookie(cname) {
-  var name = cname + "=";
-  var decodedCookie = decodeURIComponent(document.cookie);
-  var ca = decodedCookie.split(';');
-  for (var i = 0; i < ca.length; i++) {
-    var c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return "";
-}
 
 //thank you for this transaction 
 //from stackoverflow
@@ -153,3 +147,99 @@ async function async_update_instagram_info() {
 
   if (debugMode) console.log('async_update_instagram_info ended', 'hasError', hasError, 'followers', followers, 'followings', followings);
 }
+
+async function go_profile(username) {
+  if (debugMode) console.log('go_profile', username);
+  if (username)
+    location.href = "https://www.instagram.com/" + username + "/";
+}
+async function async_unfollow(user_id) {
+  var csrftoken = getCookie("csrftoken");
+
+  if (!csrftoken || csrftoken.length == 0) {
+    if (debugMode) console.log('csrftoken is empty');
+    return;
+  }
+
+  await fetch(`https://www.instagram.com/web/friendships/${user_id}/unfollow/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', "x-csrftoken": csrftoken },
+  }).then(async response => {
+    const isJson = response.headers.get('content-type')?.includes('application/json');
+    const data = isJson ? await response.json() : null;
+
+    if (!response.ok) {
+      const error = (data && data.message) || response.status;
+      console.log('response is not valid', error);
+      sendGenericMessage('unfollow_result', false, user_id);
+    }
+    else {
+      sendGenericMessage('unfollow_result', true, user_id);
+    }
+  }).catch(error => {
+    console.error('error', error);
+    sendGenericMessage('unfollow_result', false, user_id);
+  });
+
+  // $.ajax({
+  //   url: `https://www.instagram.com/web/friendships/${user_id}/unfollow/`,
+  //   type: 'post',
+  //   headers: {
+  //     "x-csrftoken": csrftoken
+  //   },
+  //   dataType: 'json',
+  //   success: function (data) {
+  //     if (debugMode) console.info(data);
+  //   },
+  //   error: function (xhr, ajaxOptions, thrownError) {
+  //     console.info('xhr', xhr, 'ajaxOptions', ajaxOptions, 'thrownError', thrownError);
+  //   }
+  // });
+}
+
+async function async_follow(user_id) {
+  var csrftoken = getCookie("csrftoken");
+
+  if (!csrftoken || csrftoken.length == 0) {
+    if (debugMode) console.log('csrftoken is empty');
+    return;
+  }
+
+  await fetch(`https://www.instagram.com/web/friendships/${user_id}/follow/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', "x-csrftoken": csrftoken },
+  }).then(async response => {
+    const isJson = response.headers.get('content-type')?.includes('application/json');
+    const data = isJson ? await response.json() : null;
+
+    if (!response.ok) {
+      const error = (data && data.message) || response.status;
+      console.log('response is not valid', response, error);
+      sendGenericMessage('follow_result', false, user_id);
+    }
+    else {
+      sendGenericMessage('follow_result', true, user_id);
+    }
+  }).catch(error => {
+    console.error('error', error);
+    sendGenericMessage('follow_result', false, user_id);
+  });
+}
+
+chrome.runtime.onMessage.addListener(
+  async function (request, sender, sendResponse) {
+    if (debugMode) console.log('chrome.runtime.onMessage.addListener', request, sender, sendResponse);
+    if (request)
+      if (request.process == 'update_instagram_info') {
+        await async_update_instagram_info();
+      } else if (request.process == 'go_profile') {
+        await go_profile(request.username);
+      }
+      else if (request.process == 'follow') {
+        await async_follow(request.user_id);
+      }
+      else if (request.process == 'unfollow') {
+        await async_unfollow(request.user_id);
+      }
+  }
+);

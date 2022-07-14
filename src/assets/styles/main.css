@@ -2,7 +2,7 @@ html {
     width: 100% !important;
     height: 100% !important;
 
-    min-width: 400px !important;
+    min-width: 800px !important;
     min-height: 500px !important;
 }
 
@@ -99,3 +99,11 @@ html {
     display: none;
     text-align: center;
 }
+
+table td span {
+    display: block;
+    max-width: 175px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
