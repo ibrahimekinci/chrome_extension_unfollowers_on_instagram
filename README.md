@@ -13,7 +13,7 @@ A privacy-friendly Chrome extension to see who doesn't follow you back on Instag
 Demo images from the extension interface:
 
 <p align="center">
-  <img src="docs/Web store/images/1.PNG" width="800"/>
+  <img src="docs/web_store/images/1.PNG" width="800"/>
 </p>
 
 ---
@@ -38,16 +38,16 @@ Open Google Chrome and follow these steps:
 
 1. Go to `chrome://extensions/`
 2. Enable **Developer mode** (top right corner)  
-   ![Step 1](docs/how to install/1.PNG)
+   ![Step 1](docs/how_to_install/1.PNG)
 
 3. Click **Load unpacked**  
-   ![Step 2](docs/how to install/2.PNG)
+   ![Step 2](docs/how_to_install/2.PNG)
 
 4. Select the unzipped folder  
-   ![Step 3](docs/how to install/3.PNG)
+   ![Step 3](docs/how_to_install/3.PNG)
 
 5. You will see the extension added  
-   ![Step 4](docs/how to install/4.PNG)
+   ![Step 4](docs/how_to_install/4.PNG)
 
 ---
 
