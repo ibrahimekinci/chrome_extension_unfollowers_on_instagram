@@ -1,7 +1,7 @@
 {
-    "name": "unfollowers on instagram",
-    "description": "You can see who unfollowed you.",
-    "version": "2.2022.07.14",
+    "name": "Unfollowers & Follow Back Checker",
+    "description": "Find out who doesn't follow you back and who you don't follow back on Instagram. Runs in-browser, no login required.",
+    "version": "2.2023.07.13",
     "manifest_version": 3,
     "background": {
         "service_worker": "background.js"
@@ -10,12 +10,12 @@
     "content_scripts": [
         {
             "css": [
-                "./src/assets/styles/instagram _page_additional.css"
+                "./src/assets/styles/instagram_page_additional.css"
             ],
             "js": [
                 "./src/vendors/jquery/jquery-v3-6-0.min.js",
                 "./src/assets/scripts/main.js",
-                "./src/assets/scripts/instagram _page_additional.js"
+                "./src/assets/scripts/instagram_page_additional.js"
             ],
             "matches": [
                 "https://www.instagram.com/*"
@@ -29,18 +29,18 @@
         "https://www.instagram.com/*"
     ],
     "action": {
-        "default_popup": "./src/views/popup_screen.html",
+        "default_popup": "/src/views/popup_screen.html",
         "default_icon": {
-            "16": "./src/assets/images/icon.png",
-            "32": "./src/assets/images/icon.png",
-            "48": "./src/assets/images/icon.png",
-            "128": "./src/assets/images/icon.png"
+            "16": "/src/assets/images/icon_16x16.png",
+            "32": "/src/assets/images/icon_32x32.png",
+            "48": "/src/assets/images/icon_48x48.png",
+            "128": "/src/assets/images/icon_128x128.png"
         }
     },
     "icons": {
-        "16": "./src/assets/images/icon.png",
-        "32": "./src/assets/images/icon.png",
-        "48": "./src/assets/images/icon.png",
-        "128": "./src/assets/images/icon.png"
+        "16": "/src/assets/images/icon_16x16.png",
+        "32": "/src/assets/images/icon_32x32.png",
+        "48": "/src/assets/images/icon_48x48.png",
+        "128": "/src/assets/images/icon_128x128.png"
     }
 }

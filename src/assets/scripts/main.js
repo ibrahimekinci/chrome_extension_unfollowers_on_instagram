@@ -102,6 +102,7 @@ function setFriends(value) {
 // Resets scroll position to top (0)
 async function resetScrollPosition() {
     await setScrollPositionTop(0);
+    await restoreScrollPosition(0);
 }
 
 // Saves the current or given scroll position

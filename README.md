@@ -54,7 +54,7 @@ Open Google Chrome and follow these steps:
 ## 🚀 How It Works
 
 - Make sure you're logged into [Instagram](https://www.instagram.com) on an active tab.
-- Click the extension icon and enter the Instagram username.
+- Click the extension icon
 - Click **Update Lists** to compare:
   - Who doesn’t follow you back
   - Who you don’t follow back
