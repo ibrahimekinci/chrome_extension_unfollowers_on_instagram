@@ -1,7 +1,7 @@
 if (debugMode) console.log("popup screen js start");
 
 async function process_updated_lists(request) {
-    if (debugMode) console.log('process_updated_lists');
+    if (debugMode) console.log('process_updated_lists', request);
     var current_user = getUser();
     if (current_user.id != request.user_id) {
         clearStorage();
@@ -116,7 +116,7 @@ async function process_updated_lists(request) {
 }
 
 async function process_follow_result(request) {
-    if (debugMode) console.log('process_follow_result',request);
+    if (debugMode) console.log('process_follow_result', request);
 
     if (!request.result) {
         $("#divError").removeClass("d-none");
@@ -135,12 +135,12 @@ async function process_follow_result(request) {
             friends[friend_index].following.status = true;
             setFriends(friends);
         }
-        $(`#divList2 table tr[data-id="${user_id}"]`).remove();
+        $(`#divList2 table tr[data-id="${user_id}"]`).addClass("bg-success");
     }
 }
 
 async function process_unfollow_result(request) {
-    if (debugMode) console.log('process_unfollow_result',request);
+    if (debugMode) console.log('process_unfollow_result', request);
 
     if (!request.result) {
         $("#divError").removeClass("d-none");
@@ -159,7 +159,8 @@ async function process_unfollow_result(request) {
             friends[friend_index].follower.status = true;
             setFriends(friends);
         }
-        $(`#divList1 table tr[data-id="${user_id}"]`).remove();
+
+        $(`#divList1 table tr[data-id="${user_id}"]`).addClass("bg-success");
     }
 }
 
@@ -271,9 +272,10 @@ function go_profile_click() {
     });
 }
 
-function list1_unfollow_row_click() {
+async function list1_unfollow_row_click() {
     if (debugMode) console.log('list1_unfollow_row_click');
-    showLoader();
+
+    await showLoader();
 
     var $this = $(this);
     var user_id = $this.parent().parent().data("id");
@@ -292,10 +294,10 @@ function list1_unfollow_row_click() {
     });
 }
 
-function list2_follow_row_click() {
+async function list2_follow_row_click() {
     if (debugMode) console.log('list2_follow_row_click');
 
-    showLoader();
+    await showLoader();
 
     var $this = $(this);
     var user_id = $this.parent().parent().data("id");
@@ -315,10 +317,11 @@ function list2_follow_row_click() {
 
 }
 
-function list1_hide_row_click() {
+async function list1_hide_row_click() {
     if (debugMode) console.log('list1_hide_row_click');
 
-    showLoader();
+    await showLoader();
+
     var $this = $(this);
     var user_id = $this.parent().parent().data("id");
     var friends = getFriends();
@@ -337,13 +340,15 @@ function list1_hide_row_click() {
     }
 
     $this.parent().parent().remove();
-    hideLoader();
+    await hideLoader();
 }
 
-function list2_hide_row_click() {
+async function list2_hide_row_click() {
     if (debugMode) console.log('list2_hide_row_click');
 
-    showLoader();
+    await showLoader();
+
+
     var $this = $(this);
     var user_id = $this.parent().parent().data("id");
     var friends = getFriends();
@@ -363,12 +368,14 @@ function list2_hide_row_click() {
     }
 
     $this.parent().parent().remove();
-    hideLoader();
+    await hideLoader();
 }
 
-function btnUpdateLists_click() {
+async function btnUpdateLists_click() {
     if (debugMode) console.log('btnUpdateLists_click');
-    showLoader();
+
+    await showLoader();
+    await resetScrollPosition();
 
     var message = {
         process: 'update_instagram_info'
@@ -386,8 +393,9 @@ function btnUpdateLists_click() {
 async function btnReset_click() {
     if (debugMode) console.log('btnReset_click');
 
-    showLoader();
+    await showLoader();
     clearStorage();
+
     await popup_screen_init();
 
     $("#divError").addClass("d-none");
@@ -486,25 +494,6 @@ function setActiveTab() {
 }
 
 //ActiveTab
-//scroll
-async function getScrollPositionTop() {
-    return localStorage.getItem(appStorageKeyNames.popup_page.scroll_position_top)
-}
-
-async function setScrollPositionTop(top) {
-
-    if (!top) {
-        top = $(document).scrollTop();
-    }
-    localStorage.setItem(appStorageKeyNames.popup_page.scroll_position_top, top);
-}
-
-
-function resetScrollPosition() {
-    document.body.scrollTop = 0; // For Safari
-    document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
-    setScrollPositionTop();
-}
 
 async function goToTopAction() {
     //Get the button:
@@ -525,27 +514,6 @@ async function goToTopAction() {
 
 }
 
-
-async function rememberScrollPosition() {
-    // If cookie is set, scroll to the position saved in the cookie.
-    let scrollTop = await getScrollPositionTop();
-    if (debugMode) console.log('scrollTop', scrollTop);
-    if (scrollTop !== null) {
-        scrollTop = parseInt(scrollTop, 10);
-
-        if (scrollTop > 100)
-            scrollTop = scrollTop - ($("#mainNav").height());
-
-        $(document).scrollTop(scrollTop);
-    }
-
-    // When scrolling happens....
-    $(window).on("scroll", function () {
-        setScrollPositionTop();
-    });
-}
-
-//scroll
 
 async function checkSiteInfo() {
     if (debugMode) console.log('checkSiteInfo');
@@ -577,7 +545,6 @@ async function popup_screen_init() {
     $('[id="' + getActiveTab() + '"]').tab('show');
 
     await checkSiteInfo();
-    await rememberScrollPosition();
     await goToTopAction();
     fillLists();
 }
@@ -585,7 +552,9 @@ async function popup_screen_init() {
 chrome.runtime.onMessage.addListener(
     async function (request, sender, sendResponse) {
         if (debugMode) console.log('chrome.runtime.onMessage.addListener', request, sender, sendResponse);
-        showLoader();
+
+        await showLoader();
+
         if (request.process == "updated_lists") {
             if (debugMode) console.log('chrome.runtime.onMessage.addListener -> updated_lists');
 
@@ -608,6 +577,7 @@ chrome.runtime.onMessage.addListener(
                 return;
             await process_unfollow_result(request);
         }
+
         hideLoader();
     });
 
@@ -624,9 +594,11 @@ $("#btnReset").click(btnReset_click);
 
 
 $(document).ready(function () {
-    popup_screen_init().then(function () {
+    popup_screen_init().then(async function () {
         hideLoader();
+        restoreScrollPosition();
     });
 });
+
 
 if (debugMode) console.log("popup screen js end");
