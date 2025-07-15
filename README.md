@@ -6,6 +6,8 @@ A privacy-friendly Chrome extension to see who doesn't follow you back on Instag
 ✅ No API access  
 ✅ Works directly inside your browser session
 
+You can access the extension through the link below:
+https://chromewebstore.google.com/detail/unfollowers-follow-back-c/ckhkaklkgofbinphfpbhbcedogdackki?authuser=0&hl=en-AU
 ---
 
 ## 📸 Demo Screenshots
