@@ -1,5 +1,15 @@
 if (debugMode) console.log("popup screen js start");
 
+function escapeHtml(value) {
+    if (value === null || value === undefined) return "";
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 function sendMessageToActiveTab(message, onError) {
     chrome.tabs.query({
         currentWindow: true,
@@ -193,7 +203,7 @@ async function process_follow_result(request) {
             friends[friend_index].following.status = true;
             setFriends(friends);
         }
-        $(`#divList2 table tr[data-id="${user_id}"]`).addClass("bg-success");
+        $(`#divList2 table tr[data-id="${escapeHtml(user_id)}"]`).addClass("bg-success");
     }
 }
 
@@ -219,7 +229,7 @@ async function process_unfollow_result(request) {
             setFriends(friends);
         }
 
-        $(`#divList1 table tr[data-id="${user_id}"]`).addClass("bg-success");
+        $(`#divList1 table tr[data-id="${escapeHtml(user_id)}"]`).addClass("bg-success");
     }
 }
 
@@ -465,17 +475,21 @@ function fillLists() {
 
     if (list1 && list1.length > 0)
         $.each(list1, function (index, value) {
-            list1bodyVal += `<tr data-id="${value.id}" data-username="${value.username}">`;
+            var safeId = escapeHtml(value.id);
+            var safeUsername = escapeHtml(value.username);
+            var safeFullName = escapeHtml(value.full_name);
+
+            list1bodyVal += `<tr data-id="${safeId}" data-username="${safeUsername}">`;
             list1bodyVal += '<th scope="row">';
             list1bodyVal += String(index + 1);
             list1bodyVal += "</th>";
 
             list1bodyVal += "<td>";
-            list1bodyVal += "<span>@" + value.username + '</span>';
+            list1bodyVal += "<span>@" + safeUsername + '</span>';
             list1bodyVal += "</td>";
 
             list1bodyVal += "<td>";
-            list1bodyVal += '<span>' + value.full_name + '</span>';
+            list1bodyVal += '<span>' + safeFullName + '</span>';
             list1bodyVal += "</td>";
 
             list1bodyVal += "<td>";
@@ -489,18 +503,22 @@ function fillLists() {
 
     if (list2 && list2.length > 0)
         $.each(list2, function (index, value) {
-            list2bodyVal += `<tr data-id="${value.id}" data-username="${value.username}">`;
+            var safeId = escapeHtml(value.id);
+            var safeUsername = escapeHtml(value.username);
+            var safeFullName = escapeHtml(value.full_name);
+
+            list2bodyVal += `<tr data-id="${safeId}" data-username="${safeUsername}">`;
 
             list2bodyVal += '<th scope="row">';
             list2bodyVal += String(index + 1);
             list2bodyVal += "</th>";
 
             list2bodyVal += "<td>";
-            list2bodyVal += '<span>@' + value.username + '</span>';
+            list2bodyVal += '<span>@' + safeUsername + '</span>';
             list2bodyVal += "</td>";
 
             list2bodyVal += "<td>";
-            list2bodyVal += '<span>' + value.full_name + '</span>';
+            list2bodyVal += '<span>' + safeFullName + '</span>';
             list2bodyVal += "</td>";
 
             list2bodyVal += "<td>";
@@ -525,7 +543,7 @@ function fillLists() {
 function getActiveTab() {
     var val = localStorage.getItem(appStorageKeyNames.popup_page.active_tab);
 
-    if (!val)
+    if (val !== 'list1-tab' && val !== 'list2-tab')
         val = 'list1-tab';
 
     return val;
@@ -593,6 +611,9 @@ async function popup_screen_init() {
 
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
+        if (!sender || sender.id !== chrome.runtime.id) {
+            return false;
+        }
         if (debugMode) console.log('chrome.runtime.onMessage.addListener', request, sender, sendResponse);
 
         (async function () {

@@ -342,8 +342,9 @@ async function async_update_instagram_info() {
 
 async function go_profile(username) {
   if (debugMode) console.log('go_profile', username);
-  if (username)
-    location.href = "https://www.instagram.com/" + username + "/";
+  if (typeof username === "string" && /^[a-zA-Z0-9._]+$/.test(username)) {
+    location.href = "https://www.instagram.com/" + encodeURIComponent(username) + "/";
+  }
 }
 
 async function performFriendshipAction(user_id, actionType) {
@@ -409,6 +410,9 @@ async function async_follow(user_id) {
 
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
+    if (!sender || sender.id !== chrome.runtime.id) {
+      return false;
+    }
     if (debugMode) console.log('chrome.runtime.onMessage.addListener', request, sender, sendResponse);
     if (request) {
       if (request.process == 'update_instagram_info') {
