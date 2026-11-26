@@ -1,7 +1,68 @@
 if (debugMode) console.log("popup screen js start");
 
+function sendMessageToActiveTab(message, onError) {
+    chrome.tabs.query({
+        currentWindow: true,
+        active: true
+    }, function (tabs) {
+        var activeTab = tabs && tabs[0];
+        if (!activeTab || !activeTab.id) {
+            if (typeof onError === "function") onError();
+            return;
+        }
+        chrome.tabs.sendMessage(activeTab.id, message, function () {
+            if (chrome.runtime.lastError) {
+                var errMsg = chrome.runtime.lastError.message || "";
+                if (debugMode) console.log("sendMessage error:", errMsg);
+
+                // If the Instagram tab was already open before the extension loaded,
+                // reload the tab once so Chrome injects the content script, then retry.
+                if (activeTab.url && activeTab.url.includes("instagram.com")) {
+                    var tabId = activeTab.id;
+                    var handled = false;
+                    var timeoutId = setTimeout(function () {
+                        if (handled) return;
+                        handled = true;
+                        chrome.tabs.onUpdated.removeListener(onTabUpdated);
+                        if (typeof onError === "function") onError();
+                    }, 15000);
+
+                    function onTabUpdated(updatedTabId, changeInfo) {
+                        if (updatedTabId === tabId && changeInfo.status === "complete") {
+                            if (handled) return;
+                            handled = true;
+                            clearTimeout(timeoutId);
+                            chrome.tabs.onUpdated.removeListener(onTabUpdated);
+                            setTimeout(function () {
+                                chrome.tabs.sendMessage(tabId, message, function () {
+                                    if (chrome.runtime.lastError) {
+                                        if (typeof onError === "function") onError();
+                                    }
+                                });
+                            }, 500);
+                        }
+                    }
+
+                    chrome.tabs.onUpdated.addListener(onTabUpdated);
+                    chrome.tabs.reload(tabId);
+                    return;
+                }
+
+                if (typeof onError === "function") onError();
+            }
+        });
+    });
+}
+
 async function process_updated_lists(request) {
     if (debugMode) console.log('process_updated_lists', request);
+
+    if (!request.result || !request.user_id || Number(request.user_id) <= 0 || !Array.isArray(request.followers) || !Array.isArray(request.followings)) {
+        $("#divError").removeClass("d-none");
+        await popup_screen_init();
+        return;
+    }
+
     var current_user = getUser();
     if (current_user.id != request.user_id) {
         clearStorage();
@@ -108,11 +169,7 @@ async function process_updated_lists(request) {
 
     await popup_screen_init();
 
-    if (request.result) {
-        $("#divError").addClass("d-none");
-    } else {
-        $("#divError").removeClass("d-none");
-    }
+    $("#divError").addClass("d-none");
 }
 
 async function process_follow_result(request) {
@@ -122,6 +179,7 @@ async function process_follow_result(request) {
         $("#divError").removeClass("d-none");
     }
     else {
+        $("#divError").addClass("d-none");
         var user_id = request.user_id;
         var friends = getFriends();
 
@@ -146,6 +204,7 @@ async function process_unfollow_result(request) {
         $("#divError").removeClass("d-none");
     }
     else {
+        $("#divError").addClass("d-none");
         var user_id = request.user_id;
         var friends = getFriends();
 
@@ -156,7 +215,7 @@ async function process_unfollow_result(request) {
 
         if (friend_index > -1) {
             if (debugMode) console.log('friend', friends[friend_index]);
-            friends[friend_index].follower.status = true;
+            friends[friend_index].following.status = false;
             setFriends(friends);
         }
 
@@ -263,13 +322,7 @@ function go_profile_click() {
         username: username
     };
 
-    chrome.tabs.query({
-        currentWindow: true,
-        active: true
-    }, function (tabs) {
-        var activeTab = tabs[0];
-        chrome.tabs.sendMessage(activeTab.id, message);
-    });
+    sendMessageToActiveTab(message);
 }
 
 async function list1_unfollow_row_click() {
@@ -285,12 +338,9 @@ async function list1_unfollow_row_click() {
         user_id: user_id
     };
 
-    chrome.tabs.query({
-        currentWindow: true,
-        active: true
-    }, function (tabs) {
-        var activeTab = tabs[0];
-        chrome.tabs.sendMessage(activeTab.id, message);
+    sendMessageToActiveTab(message, async function () {
+        $("#divError").removeClass("d-none");
+        await hideLoader();
     });
 }
 
@@ -307,14 +357,10 @@ async function list2_follow_row_click() {
         user_id: user_id
     };
 
-    chrome.tabs.query({
-        currentWindow: true,
-        active: true
-    }, function (tabs) {
-        var activeTab = tabs[0];
-        chrome.tabs.sendMessage(activeTab.id, message);
+    sendMessageToActiveTab(message, async function () {
+        $("#divError").removeClass("d-none");
+        await hideLoader();
     });
-
 }
 
 async function list1_hide_row_click() {
@@ -374,6 +420,7 @@ async function list2_hide_row_click() {
 async function btnUpdateLists_click() {
     if (debugMode) console.log('btnUpdateLists_click');
 
+    $("#divError").addClass("d-none");
     await showLoader();
     await resetScrollPosition();
 
@@ -381,12 +428,9 @@ async function btnUpdateLists_click() {
         process: 'update_instagram_info'
     };
 
-    chrome.tabs.query({
-        currentWindow: true,
-        active: true
-    }, function (tabs) {
-        var activeTab = tabs[0];
-        chrome.tabs.sendMessage(activeTab.id, message);
+    sendMessageToActiveTab(message, async function () {
+        $("#divError").removeClass("d-none");
+        await hideLoader();
     });
 }
 
@@ -405,7 +449,7 @@ async function btnReset_click() {
 
     $list1Body.html('');
     $list2Body.html('');
-    hideLoader();
+    await hideLoader();
 }
 
 function fillLists() {
@@ -519,11 +563,13 @@ async function checkSiteInfo() {
     if (debugMode) console.log('checkSiteInfo');
 
     chrome.tabs.query({
+        currentWindow: true,
         active: true,
     }, tabs => {
-        if (debugMode) console.log("active tab url", tabs[0].url);
+        var activeUrl = (tabs && tabs[0] && tabs[0].url) ? tabs[0].url : "";
+        if (debugMode) console.log("active tab url", activeUrl);
 
-        if (tabs[0].url.includes("instagram.com")) {
+        if (activeUrl.includes("instagram.com")) {
             $("#divWebSiteInfo").addClass("d-none");
             $("#btnUpdateLists").removeClass("d-none");
         } else {
@@ -537,10 +583,6 @@ async function checkSiteInfo() {
 async function popup_screen_init() {
     if (debugMode) console.log('popup_screen_init');
     await main_init();
-    var user = getUser();
-    if (user.id > 0) {
-        fillLists();
-    }
 
     $('[id="' + getActiveTab() + '"]').tab('show');
 
@@ -550,35 +592,41 @@ async function popup_screen_init() {
 }
 
 chrome.runtime.onMessage.addListener(
-    async function (request, sender, sendResponse) {
+    function (request, sender, sendResponse) {
         if (debugMode) console.log('chrome.runtime.onMessage.addListener', request, sender, sendResponse);
 
-        await showLoader();
+        (async function () {
+            await showLoader();
+            try {
+                if (request && request.process == "updated_lists") {
+                    if (debugMode) console.log('chrome.runtime.onMessage.addListener -> updated_lists');
+                    await process_updated_lists(request);
+                }
+                else if (request && request.process == "follow_result") {
+                    if (debugMode) console.log('chrome.runtime.onMessage.addListener -> follow_result');
+                    if (!request.user_id || Number(request.user_id) <= 0) {
+                        $("#divError").removeClass("d-none");
+                    } else {
+                        await process_follow_result(request);
+                    }
+                }
+                else if (request && request.process == "unfollow_result") {
+                    if (debugMode) console.log('chrome.runtime.onMessage.addListener -> unfollow_result');
+                    if (!request.user_id || Number(request.user_id) <= 0) {
+                        $("#divError").removeClass("d-none");
+                    } else {
+                        await process_unfollow_result(request);
+                    }
+                }
+            } finally {
+                await hideLoader();
+            }
+        })();
 
-        if (request.process == "updated_lists") {
-            if (debugMode) console.log('chrome.runtime.onMessage.addListener -> updated_lists');
-
-            if (!request.user_id || request.user_id <= 0)
-                return;
-
-            await process_updated_lists(request);
+        if (typeof sendResponse === "function") {
+            sendResponse({ received: true });
         }
-        else if (request.process == "follow_result") {
-            if (debugMode) console.log('chrome.runtime.onMessage.addListener -> follow_result');
-
-            if (!request.user_id || request.user_id <= 0)
-                return;
-            await process_follow_result(request);
-        }
-        else if (request.process == "unfollow_result") {
-            if (debugMode) console.log('chrome.runtime.onMessage.addListener -> unfollow_result');
-
-            if (!request.user_id || request.user_id <= 0)
-                return;
-            await process_unfollow_result(request);
-        }
-
-        hideLoader();
+        return false;
     });
 
 $(document).on('click', '.js-go-profile', go_profile_click);
