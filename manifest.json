@@ -1,7 +1,8 @@
 {
     "name": "Unfollowers & Follow Back Checker",
     "description": "Find out who doesn't follow you back and who you don't follow back on Instagram. Runs in-browser, no login required.",
-    "version": "2.2026.11.26",
+    "version": "2.2026.11.27",
+    "version_name": "2.2026.11.26.v2",
     "manifest_version": 3,
     "background": {
         "service_worker": "background.js"
